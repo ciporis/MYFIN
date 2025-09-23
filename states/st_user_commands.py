@@ -7,15 +7,22 @@ class st_User_Commands(StatesGroup):
     class st_IncomeCommand(StatesGroup):
         income_command_state = State()
         amount_state = State()
+        category_state = State()
         comment_state = State()
 
     class st_OutcomeCommand(StatesGroup):
         outcome_command_state = State()
         amount_state = State()
+        category_state = State()
         comment_state = State()
 
     class st_TransferCommand(StatesGroup):
         transfer_command_state = State()
         phone_number_state = State()
         amount_state = State()
+        category_state = State()
         comment_state = State()
+
+    class st_EditProfile(StatesGroup):
+        fio_state = State()
+        phone_number_state = State()

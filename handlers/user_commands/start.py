@@ -9,6 +9,7 @@ from database.orm_query import orm_get_user_by_id
 from states.st_registration import st_Registration
 from services.profile_displayer import show_profile
 from create_bot import bot
+from keyboards.reply import remove
 
 router = Router()
 
@@ -19,6 +20,6 @@ async def start_command_handler(message: Message, session: AsyncSession, state: 
 
     if user is None:
         await state.set_state(st_Registration.fio_state)
-        await bot.send_message(chat_id=message.chat.id, text="Введите ваше ФИО:")
+        await bot.send_message(chat_id=message.chat.id, text="Здравствуйте, чтобы зарегестрироваться в боте напишите ФИО:", reply_markup=remove)
     else:
         await show_profile(message.from_user.id, session)
