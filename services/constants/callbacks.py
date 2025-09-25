@@ -9,3 +9,9 @@ class WalletOperations:
 class ProfileCommands:
     show_profile: str = "show_profile"
     add_category: str = "add_category"
+
+wallets_pagination_first_page = f"wallets_page_1"
+excel_report = "send_xlsx"
+get_ai_tips = "get_ai_tips"
+settings = "edit_profile"
+

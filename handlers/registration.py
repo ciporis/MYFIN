@@ -41,7 +41,7 @@ async def save_contact(message: Message, state: FSMContext, session: AsyncSessio
     apscheduler.add_job(send_ad_offer, id=f'{job_id}_q', trigger='date', run_date=date_week2, kwargs={
         'chat_id': user_id})
 
-    await message.answer("У вас нет ни одного кошелька, создайте хотя бы один")
+    await message.answer("Давайте добавим счёт!")
     await start_wallet_creation(message, state)
 
 @router.message(st_Registration.phone_number_state)

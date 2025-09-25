@@ -9,26 +9,21 @@ from database.orm_query import (orm_add_operation, orm_get_wallet,
                                 orm_edit_wallet_amount, orm_get_all_categories, orm_get_category)
 from database.models import Wallet, Category
 from services.constants.operations import Operations
-from services.profile_displayer import show_profile
-from create_bot import bot
+from services.constants import callbacks
 from keyboards.inline import get_callback_btns
 
 router = Router()
 
 @router.callback_query(F.data.contains(WalletOperations.write_outcome))
 async def write_outcome(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    wallet_id: int = int(callback.data.split('_')[-2])
-    page: int = int(callback.data.split('_')[-1])
+    state_data = await state.get_data()
+    wallet = state_data["current_wallet"]
 
-    wallet = await orm_get_wallet(session, wallet_id)
     if wallet.amount == 0:
         await callback.answer("У вас недостаточно средств", show_alert=True)
         return
 
-    await state.update_data(wallet_id=wallet_id, page=page)
     await callback.answer()
-
-
 
     categories = await orm_get_all_categories(session, callback.from_user.id)
     buttons = {}
@@ -63,8 +58,7 @@ async def write_outcome(callback: CallbackQuery, state: FSMContext):
 @router.message(st_User_Commands.st_OutcomeCommand.amount_state)
 async def save_amount(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
-    wallet: Wallet = await orm_get_wallet(session, state_data["wallet_id"])
-    page = state_data["page"]
+    wallet: Wallet = state_data["current_wallet"]
     balance: float = wallet.amount
 
     if message.text.isdigit():
@@ -72,7 +66,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
 
         if amount < 0 or wallet.amount - amount < 0:
             await message.answer("Неккоректный ввод", reply_markup=get_callback_btns(
-                btns={"Назад" : f"wallets_page_{page}"}
+                btns={"Назад" : callbacks.WalletOperations.write_income},
             ))
             await state.clear()
         else:
@@ -82,7 +76,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
             await state.set_state(st_User_Commands.st_OutcomeCommand.comment_state)
     else:
         await message.answer("Неккоректный ввод", reply_markup=get_callback_btns(
-            btns={"Назад": f"wallets_page_{page}"}
+            btns={"Назад": callbacks.ProfileCommands.show_profile}
         ))
         await state.clear()
 
@@ -93,7 +87,7 @@ async def save_comment(message: Message, state: FSMContext, session: AsyncSessio
 
 async def save_operation(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
-    wallet: Wallet = await orm_get_wallet(session, state_data["wallet_id"])
+    wallet: Wallet = state_data["current_wallet"]
     page = state_data["page"]
 
     category_id = state_data["category_id"]
@@ -117,7 +111,7 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
 
     await message.answer("Успешно!", reply_markup=get_callback_btns(
         btns={
-            "Назад": f"wallets_page_{page}",
+            "Назад": callbacks.ProfileCommands.show_profile,
         }
     ))
     await state.clear()

@@ -20,6 +20,6 @@ async def start_command_handler(message: Message, session: AsyncSession, state: 
 
     if user is None:
         await state.set_state(st_Registration.fio_state)
-        await bot.send_message(chat_id=message.chat.id, text="Здравствуйте, чтобы зарегестрироваться в боте напишите ФИО:", reply_markup=remove)
+        await bot.send_message(chat_id=message.chat.id, text="Здравствуйте, как к вам обращаться?", reply_markup=remove)
     else:
-        await show_profile(message.from_user.id, session)
+        await show_profile(message.from_user.id, session, state)

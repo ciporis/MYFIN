@@ -16,13 +16,13 @@ async def handle_wallet_adding_callback(callback: CallbackQuery, state: FSMConte
     await start_wallet_creation(callback.message, state)
 
 async def start_wallet_creation(message: Message, state: FSMContext):
-    await message.answer("Название нового кошелька")
+    await message.answer("Название счёта")
     await state.set_state(st_WalletCreation.title_state)
 
 @router.message(st_WalletCreation.title_state)
 async def save_wallet_title(message: Message, state: FSMContext):
     await state.update_data(wallet_title=message.text)
-    await message.answer("Введите количество денег на кошельке, если он пуст, введите комманду /done")
+    await message.answer("Сумма на счёте")
     await state.set_state(st_WalletCreation.amount_state)
 
 async def repeat_amount_input(message: Message, state: FSMContext):
@@ -31,17 +31,12 @@ async def repeat_amount_input(message: Message, state: FSMContext):
 
 @router.message(F.text, st_WalletCreation.amount_state)
 async def save_wallet_amount(message: Message, state: FSMContext, session: AsyncSession):
-    if message.text != "/done":
-        if message.text.isdecimal():
-            amount = float(message.text)
-            await state.update_data(wallet_amount=amount)
-            await create_wallet(message, state, session)
-
-        else:
-            await repeat_amount_input(message, state)
-    else:
-        await state.update_data(wallet_amount=0)
+    if message.text.isdecimal():
+        amount = float(message.text)
+        await state.update_data(wallet_amount=amount)
         await create_wallet(message, state, session)
+    else:
+        await repeat_amount_input(message, state)
 
 async def create_wallet(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
@@ -50,4 +45,4 @@ async def create_wallet(message: Message, state: FSMContext, session: AsyncSessi
     await orm_add_wallet(session, message.from_user.id, wallet_title, wallet_amount)
     await message.answer("Успешно")
 
-    await show_profile(message.from_user.id, session)
+    await show_profile(message.from_user.id, session, state)

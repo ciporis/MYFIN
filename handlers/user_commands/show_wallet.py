@@ -22,10 +22,6 @@ async def wallets_pagination(callback: CallbackQuery, session: AsyncSession):
 
     total_wallets = len(wallets)
 
-    if not wallets:
-        await callback.answer("У вас нет ни одного кошелька", show_alert=True)
-        return
-
     wallets_per_page = 1
     total_pages = (total_wallets + wallets_per_page - 1) // wallets_per_page
     current_wallet = wallets[page - 1]

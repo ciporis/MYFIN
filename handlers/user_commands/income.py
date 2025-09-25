@@ -9,46 +9,14 @@ from database.orm_query import (orm_add_operation, orm_get_wallet,
                                 orm_edit_wallet_amount, orm_get_all_categories, orm_get_category)
 from database.models import Wallet, Category
 from services.constants.operations import Operations
-from services.profile_displayer import show_profile
-from create_bot import bot
+from services.constants.callbacks import ProfileCommands
 from keyboards.inline import get_callback_btns
 
 router = Router()
 
-# @router.callback_query(F.data.contains(WalletOperations.write_income))
-# async def write_income(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-#     wallet_id: int = int(callback.data.split('_')[-1])
-#     await state.update_data(wallet_id=wallet_id)
-#     await callback.answer()
-
-    # categories = await orm_get_all_categories(session, callback.from_user.id)
-
-    # if categories:
-    #     for category in categories:
-    #         buttons[category.title] = f"select_category_for_income_{category.id}"
-    #
-    #     buttons["Добавить"] = ProfileCommands.add_category
-    #
-    #     await callback.message.edit_text("Выберите категорию", reply_markup=get_callback_btns(
-    #         btns=buttons,
-    #     ))
-    # else:
-    #     buttons["Добавить"] = ProfileCommands.add_category
-    #
-    #     await callback.message.edit_text("Выберите категорию", reply_markup=get_callback_btns(
-    #         btns=buttons,
-    #     ))
-
-
 @router.callback_query(F.data.contains(WalletOperations.write_income))
-async def write_income(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    wallet_id: int = int(callback.data.split('_')[-2])
-    page: int = int(callback.data.split('_')[-1])
-
-    await state.update_data(wallet_id=wallet_id, page=page)
+async def write_income(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    # category_id = int(callback.data.split('_')[-1])
-    # await state.update_data(category_id=category_id)
     await callback.message.edit_text("Введите сумму")
     await state.set_state(st_User_Commands.st_IncomeCommand.amount_state)
 
@@ -59,8 +27,7 @@ async def write_income(callback: CallbackQuery, state: FSMContext, session: Asyn
 @router.message(st_User_Commands.st_IncomeCommand.amount_state)
 async def save_amount(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
-    wallet: Wallet = await orm_get_wallet(session, state_data["wallet_id"])
-    page = state_data["page"]
+    wallet: Wallet = state_data["current_wallet"]
     balance: float = wallet.amount
 
     if message.text.isdigit():
@@ -68,7 +35,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
 
         if amount < 0:
             await message.answer("Неккоректный ввод", reply_markup=get_callback_btns(
-                btns={"Назад": f"wallets_page_{page}"}
+                btns={"Назад": ProfileCommands.show_profile}
             ))
             await state.clear()
         else:
@@ -78,7 +45,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
             await state.set_state(st_User_Commands.st_IncomeCommand.comment_state)
     else:
         await message.answer("Неккоректный ввод", reply_markup=get_callback_btns(
-            btns={"Назад": f"wallets_page_{page}"}
+            btns={"Назад": ProfileCommands.show_profile}
         ))
         await state.clear()
 
@@ -89,8 +56,7 @@ async def save_comment(message: Message, state: FSMContext, session: AsyncSessio
 
 async def save_operation(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
-    wallet: Wallet = await orm_get_wallet(session, state_data["wallet_id"])
-    page = state_data["page"]
+    wallet: Wallet = state_data["current_wallet"]
 
     # category_id = state_data["category_id"]
     amount = state_data["amount"]
@@ -112,7 +78,7 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
     )
     await message.answer("Успешно!", reply_markup=get_callback_btns(
         btns={
-            "Назад" : f"wallets_page_{page}",
+            "Назад" : ProfileCommands.show_profile,
         }
     ))
 
