@@ -29,8 +29,7 @@ class Operation(Base):
     amount: Mapped[float] = mapped_column(Float)
     comment: Mapped[str] = mapped_column(String)
     operation_type: Mapped[str] = mapped_column(String)
-    transfer_user_id: Mapped[int] = mapped_column(BigInteger)
-    transfer_wallet_id: Mapped[int] = mapped_column(Integer)
+    receiver: Mapped[str] = mapped_column(String)
     category: Mapped[str] = mapped_column(String)
 
 class Wallet(Base):

@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing_extensions import overload
 
 from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
@@ -19,10 +20,6 @@ async def write_income(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await callback.message.edit_text("Введите сумму")
     await state.set_state(st_User_Commands.st_IncomeCommand.amount_state)
-
-# async def repeat_income(chat_id: int, state: FSMContext):
-#     await bot.send_message(chat_id, "Введите пожалуйста корректную сумму")
-#     await state.set_state(st_User_Commands.st_IncomeCommand.amount_state)
 
 @router.message(st_User_Commands.st_IncomeCommand.amount_state)
 async def save_amount(message: Message, state: FSMContext, session: AsyncSession):
@@ -58,10 +55,8 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
     state_data = await state.get_data()
     wallet: Wallet = state_data["current_wallet"]
 
-    # category_id = state_data["category_id"]
     amount = state_data["amount"]
     comment = state_data["comment"]
-    # category: Category = await orm_get_category(session, category_id)
 
     await orm_edit_wallet_amount(session, wallet.id, wallet.amount + amount)
 
@@ -72,8 +67,7 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
         amount=amount,
         comment=comment,
         operation_type=Operations.INCOME.value,
-        transfer_user_id=0,
-        transfer_wallet_id=0,
+        receiver="",
         category=""
     )
     await message.answer("Успешно!", reply_markup=get_callback_btns(

@@ -21,7 +21,7 @@ def get_keyboard(
     return keyboard.adjust(*sizes).as_markup(
         resize_keyboard=True, input_field_placeholder=placeholder)
 
-async def phone_button(text: str):
+async def get_phone_number_keyboard(text: str):
     phone_button = ReplyKeyboardMarkup(keyboard=[
         [
             KeyboardButton(text=text, request_contact=True),

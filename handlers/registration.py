@@ -8,7 +8,7 @@ import datetime
 
 from handlers.wallet_maker import start_wallet_creation
 from states.st_registration import st_Registration
-from keyboards.reply import phone_button, remove
+from keyboards.reply import get_phone_number_keyboard, remove
 from database.orm_query import orm_add_user
 from create_bot import bot
 
@@ -17,7 +17,7 @@ router = Router()
 @router.message(st_Registration.fio_state)
 async def save_fio(message: Message, state: FSMContext):
     await state.update_data(fio = message.text)
-    await message.answer("Отправьте ваш номер телефона", reply_markup=await phone_button(text="Отправить контакт"))
+    await message.answer("Отправьте ваш номер телефона", reply_markup=await get_phone_number_keyboard(text="Отправить контакт"))
     await state.set_state(st_Registration.phone_number_state)
 
 @router.message(st_Registration.phone_number_state, F.contact)

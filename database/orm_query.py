@@ -35,14 +35,13 @@ async def orm_edit_user_phone_number(session: AsyncSession, user_id: int, phone_
 
 async def orm_add_operation(session: AsyncSession, user_id: int, wallet_id: int,
                             amount: float, comment: str, operation_type: str,
-                            transfer_user_id: int, transfer_wallet_id: int, category: str):
+                            receiver: str, category: str):
     operation = Operation(user_id=user_id,
                           wallet_id=wallet_id,
                           amount=amount,
                           comment=comment,
                           operation_type=operation_type,
-                          transfer_user_id=transfer_user_id,
-                          transfer_wallet_id=transfer_wallet_id,
+                          receiver=receiver,
                           category=category
     )
     session.add(operation)

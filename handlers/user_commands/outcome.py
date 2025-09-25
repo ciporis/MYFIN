@@ -103,8 +103,7 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
         amount=amount,
         comment=comment,
         operation_type=Operations.OUTCOME.value,
-        transfer_user_id=0,
-        transfer_wallet_id=0,
+        receiver="",
         category=determined_category
     )
 
