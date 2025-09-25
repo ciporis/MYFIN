@@ -11,8 +11,22 @@ from database.models import Wallet, Category
 from services.constants.operations import Operations
 from services.constants import callbacks
 from keyboards.inline import get_callback_btns
+from services import openai
 
 router = Router()
+
+categories = [
+    "Продукты питания",
+    "Транспорт Жилье",
+    "Кафе и рестораны",
+    "Здоровье",
+    "Одежда и обувь",
+    "Развлечения",
+    "Связь",
+    "Личные расходы",
+    "Накопления и инвестиции",
+    "Прочее"
+]
 
 @router.callback_query(F.data.contains(WalletOperations.write_outcome))
 async def write_outcome(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
@@ -25,35 +39,8 @@ async def write_outcome(callback: CallbackQuery, state: FSMContext, session: Asy
 
     await callback.answer()
 
-    categories = await orm_get_all_categories(session, callback.from_user.id)
-    buttons = {}
-
-    if categories:
-        for category in categories:
-            buttons[category.title] = f"select_category_for_outcome_{category.id}"
-
-        await callback.message.edit_text("Выберите статью расхода", reply_markup=get_callback_btns(
-            btns=buttons,
-        ))
-    else:
-        await callback.message.edit_text("У вас нет ни одной статьи расходов\nЧтобы добавить новую\n"
-                                         "профиль -> добавить статью расходов",
-                                         reply_markup=get_callback_btns(btns={"Назад" : "show_profile"})
-        )
-
-@router.callback_query(F.data.startswith("select_category_for_outcome"))
-async def write_outcome(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
-
-    category_id = int(callback.data.split('_')[-1])
-    await state.update_data(category_id=category_id)
     await callback.message.edit_text("Введите сумму")
     await state.set_state(st_User_Commands.st_OutcomeCommand.amount_state)
-
-# async def repeat_outcome(chat_id: int, wallet_id: int, state: FSMContext):
-#     await bot.send_message(chat_id, "Введите пожалуйста корректную сумму")
-#     await state.update_data(wallet_id=wallet_id)
-#     await state.set_state(st_User_Commands.st_OutcomeCommand.amount_state)
 
 @router.message(st_User_Commands.st_OutcomeCommand.amount_state)
 async def save_amount(message: Message, state: FSMContext, session: AsyncSession):
@@ -88,12 +75,24 @@ async def save_comment(message: Message, state: FSMContext, session: AsyncSessio
 async def save_operation(message: Message, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
     wallet: Wallet = state_data["current_wallet"]
-    page = state_data["page"]
 
-    category_id = state_data["category_id"]
     amount = state_data["amount"]
     comment = state_data["comment"]
-    category: Category = await orm_get_category(session, category_id)
+
+    categories_text = ""
+
+    for category in categories:
+        categories_text += f"\n{category}\n"
+
+    promt = (f"Определи по комментарию к расходу категорию, к которой он пренадлежит. В ответе напиши только название категори\n"
+             f"Комментарий: {comment}\n"
+             f"Категории: {categories_text}")
+
+    await message.answer("Определяю категорию расхода...")
+
+    determined_category = await openai.generate_text(promt)
+
+    await message.answer(f"Категория для вашего расхода - {determined_category}")
 
     await orm_edit_wallet_amount(session, wallet.id, wallet.amount - amount)
 
@@ -106,7 +105,7 @@ async def save_operation(message: Message, state: FSMContext, session: AsyncSess
         operation_type=Operations.OUTCOME.value,
         transfer_user_id=0,
         transfer_wallet_id=0,
-        category=category.title
+        category=determined_category
     )
 
     await message.answer("Успешно!", reply_markup=get_callback_btns(

@@ -69,9 +69,9 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
     Расход: {outcomes_amount} руб
     """
 
-    await bot.send_message(chat_id=callback.from_user.id, text=text, reply_markup=get_callback_btns(
+    await callback.message.edit_text(text = text, reply_markup=get_callback_btns(
         btns=buttons,
-        sizes=sizes
+        sizes=sizes,
     ))
 
 async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
