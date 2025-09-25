@@ -13,6 +13,13 @@ class User(Base):
     fio: Mapped[str] = mapped_column(String)
     phone_number: Mapped[str] = mapped_column(String)
 
+class Receiver(Base):
+    __tablename__ = "receivers"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    name: Mapped[str] = mapped_column(String)
+
 class Operation(Base):
     __tablename__ = "operations"
 

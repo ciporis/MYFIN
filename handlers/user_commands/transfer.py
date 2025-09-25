@@ -18,15 +18,12 @@ router = Router()
 
 @router.callback_query(F.data.contains(WalletOperations.write_transfer))
 async def write_transfer_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    wallet_id = int(callback.data.split('_')[-2])
-    page = int(callback.data.split('_')[-1])
+    state_data = await state.get_data()
+    wallet: Wallet = state_data["current_wallet"]
 
-    wallet = await orm_get_wallet(session, wallet_id)
     if wallet.amount == 0:
         await callback.answer("У вас недостаточно средств", show_alert=True)
         return
-
-    await state.update_data(wallet_id=wallet_id, page=page)
 
     await callback.answer()
     await callback.message.answer(text="Поделитель контактом человека, которому переводили средства")
@@ -36,9 +33,6 @@ async def write_transfer_handler(callback: CallbackQuery, state: FSMContext, ses
 async def find_user_by_contact(message: Message, state: FSMContext, session: AsyncSession):
     phone_number = message.contact.phone_number.replace('+', '')
     user: User = await orm_get_user_by_phone_number(session, phone_number)
-
-    # categories = await orm_get_all_categories(session, message.from_user.id)
-    # buttons = {}
 
     if user is None:
         await message.answer("Такого пользователя не существует")
