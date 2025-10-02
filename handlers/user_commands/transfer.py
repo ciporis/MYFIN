@@ -9,8 +9,9 @@ from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
 from database.orm_query import (orm_get_user_by_id,
                                 orm_add_operation, orm_get_user_by_phone_number, orm_get_all_categories, orm_get_wallet,
-                                orm_get_category, orm_edit_wallet_amount, orm_get_wallets)
-from database.models import User, Wallet, Category
+                                orm_get_category, orm_edit_wallet_amount, orm_get_user_wallets, orm_get_receivers,
+                                orm_get_receiver, orm_add_receiver)
+from database.models import User, Wallet, Category, Receiver
 from services.constants.operations import Operations
 from services.constants.callbacks import ProfileCommands
 from services.profile_displayer import show_profile
@@ -21,36 +22,70 @@ router = Router()
 
 @router.callback_query(F.data.contains(WalletOperations.write_transfer))
 async def write_transfer_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    state_data = await state.get_data()
-    wallet: Wallet = state_data["current_wallet"]
+    await callback.answer()
 
-    if wallet.amount == 0:
+    user: User = await orm_get_user_by_id(session, callback.from_user.id)
+    wallet: Wallet = user.current_wallet
+
+    if wallet.amount <= 0:
         await callback.answer("У вас недостаточно средств", show_alert=True)
         return
 
-    await callback.answer()
-    await callback.message.answer(text="Отправьте имя получателя или контакт, из которого нужно взять имя")
+    text = "Отправьте имя получателя или контакт, из которого нужно взять имя"
+
+    receivers = await orm_get_receivers(session, callback.from_user.id)
+
+    if receivers:
+        text += "\nИли выберите из предложенных"
+
+        buttons = {}
+
+        for receiver in receivers:
+            receiver: Receiver
+
+            buttons[receiver.name] = f"set_receiver_{receiver.id}"
+
+        await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
+            btns=buttons
+        ))
+    else:
+        await callback.message.edit_text(text=text)
+
     await state.set_state(st_User_Commands.st_TransferCommand.name_state)
+
+@router.callback_query(st_User_Commands.st_TransferCommand.name_state)
+async def save_receiver_name(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    receiver_id = int(callback.data.split("_")[-1])
+    receiver: Receiver = await orm_get_receiver(session, receiver_id)
+
+    await state.update_data(name=receiver.name)
+    await callback.message.edit_text("Введите сумму")
+    await state.set_state(st_User_Commands.st_TransferCommand.amount_state)
 
 @router.message(st_User_Commands.st_TransferCommand.name_state, F.contact)
 async def get_user_name_by_contact(message: Message, state: FSMContext, session: AsyncSession):
     name = message.contact.first_name
 
     await state.update_data(name=name)
-    await message.answer("Введиет сумму")
+
+    await orm_add_receiver(session, message.from_user.id, name)
+
+    await message.answer("Введите сумму")
     await state.set_state(st_User_Commands.st_TransferCommand.amount_state)
 
 @router.message(st_User_Commands.st_TransferCommand.name_state, F.text)
-async def set_user_name(message: Message, state: FSMContext):
+async def set_user_name(message: Message, state: FSMContext, session: AsyncSession):
     await state.update_data(name=message.text)
-    await message.answer("Введиет сумму")
+
+    await orm_add_receiver(session, message.from_user.id, message.text)
+
+    await message.answer("Введите сумму")
     await state.set_state(st_User_Commands.st_TransferCommand.amount_state)
 
 @router.message(st_User_Commands.st_TransferCommand.amount_state)
 async def save_transfer_amount(message: Message, state: FSMContext, session: AsyncSession):
-    state_data = await state.get_data()
-
-    wallet: Wallet = state_data["current_wallet"]
+    user: User = await orm_get_user_by_id(session, message.from_user.id)
+    wallet: Wallet = user.current_wallet
     balance: float = wallet.amount
 
     if message.text.lower() == "inf" or message.text.lower() == "nan":
@@ -79,7 +114,8 @@ async def save_transfer_amount(message: Message, state: FSMContext, session: Asy
 async def save_operation(user_id, state: FSMContext, session: AsyncSession):
     state_data = await state.get_data()
 
-    wallet: Wallet = state_data["current_wallet"]
+    user: User = await orm_get_user_by_id(session, user_id)
+    wallet: Wallet = user.current_wallet
 
     receiver: str = state_data["name"]
     amount: float = state_data["amount"]

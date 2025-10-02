@@ -1,7 +1,6 @@
 from enum import Enum
 
 class Operations(Enum):
-    INCOME = "Приход"
+    INCOME = "Доход"
     OUTCOME = "Расход"
-    TRANSFER_TO = "Исходящий перевод"
-    TRANSFER_FROM = "Входящий перевод"
+    TRANSFER_TO = "Перевод"

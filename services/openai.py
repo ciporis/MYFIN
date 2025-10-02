@@ -1,8 +1,11 @@
 import os
 import re
 import json
+import logging
+
 from dotenv import load_dotenv
 from openai import OpenAI
+
 
 load_dotenv()
 
@@ -27,4 +30,4 @@ async def get_json_as_map(prompt, model="gpt-4o-mini") -> dict:
             json_str = match.group(1)
             return json.loads(json_str)
     except:
-        print("Cannot parse json from ProxyAPI")
+        logging.error("Cannot parse json from ProxyAPI")

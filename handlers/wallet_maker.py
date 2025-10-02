@@ -7,6 +7,8 @@ from services.constants.callbacks import WalletOperations
 from states.st_wallet_creation import st_WalletCreation
 from database.orm_query import orm_add_wallet, orm_add_operation
 from services.profile_displayer import show_profile
+from keyboards.inline import get_callback_btns
+from services.constants import callbacks
 
 router = Router()
 
@@ -16,17 +18,17 @@ async def handle_wallet_adding_callback(callback: CallbackQuery, state: FSMConte
     await start_wallet_creation(callback.message, state)
 
 async def start_wallet_creation(message: Message, state: FSMContext):
-    await message.answer("Название счёта")
+    await message.answer("Название счёта:")
     await state.set_state(st_WalletCreation.title_state)
 
 @router.message(st_WalletCreation.title_state)
 async def save_wallet_title(message: Message, state: FSMContext):
     await state.update_data(wallet_title=message.text)
-    await message.answer("Сумма на счёте")
+    await message.answer("Сумма на счёте:")
     await state.set_state(st_WalletCreation.amount_state)
 
 async def repeat_amount_input(message: Message, state: FSMContext):
-    await message.answer("Введите число заново")
+    await message.answer("Введите число заново:")
     await state.set_state(st_WalletCreation.amount_state)
 
 @router.message(F.text, st_WalletCreation.amount_state)
@@ -43,6 +45,5 @@ async def create_wallet(message: Message, state: FSMContext, session: AsyncSessi
     wallet_title = state_data["wallet_title"]
     wallet_amount = state_data["wallet_amount"]
     await orm_add_wallet(session, message.from_user.id, wallet_title, wallet_amount)
-    await message.answer("Успешно")
 
     await show_profile(message.from_user.id, session, state)

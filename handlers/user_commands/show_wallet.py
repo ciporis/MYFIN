@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from keyboards.reply import remove
 from services.constants.callbacks import WalletOperations, ProfileCommands
-from database.orm_query import orm_get_wallet, orm_get_wallets
+from database.orm_query import orm_get_wallet, orm_get_user_wallets
 from database.models import Wallet
 from keyboards.inline import get_callback_btns
 
@@ -15,7 +15,7 @@ async def wallets_pagination(callback: CallbackQuery, session: AsyncSession):
     user_id = callback.from_user.id
     page = int(callback.data.split("_")[-1])
 
-    wallets = await orm_get_wallets(session, user_id)
+    wallets = await orm_get_user_wallets(session, user_id)
 
     wallet: Wallet = wallets[page - 1]
     wallet_id = wallet.id

@@ -8,6 +8,9 @@ def get_callback_btns(
     keyboard = InlineKeyboardBuilder()
 
     for text, data in btns.items():
-        keyboard.add(InlineKeyboardButton(text=text, callback_data=data))
+        if data.startswith('http'):
+            keyboard.add(InlineKeyboardButton(text=text, url=data))
+        else:
+            keyboard.add(InlineKeyboardButton(text=text, callback_data=data))
 
     return keyboard.adjust(*sizes).as_markup()

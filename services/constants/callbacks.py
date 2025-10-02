@@ -15,5 +15,7 @@ settings = "settings"
 FAQ = "FAQ"
 support = "support"
 outcome_categories = "outcome_categories"
-hide_wallet = "hide_wallet"
+change_wallet_state = "change_wallet_state"
 premium = "premium"
+
+show_wallets = "show_wallets"
