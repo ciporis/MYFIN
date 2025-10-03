@@ -44,48 +44,48 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
         elif operation.operation_type == Operations.OUTCOME.value:
             outcomes_amount += operation.amount
 
-    buttons["Доход"] = callbacks.WalletOperations.write_income
-    buttons["Расход"] = callbacks.WalletOperations.write_outcome
-    buttons["Перевод"] = callbacks.WalletOperations.write_transfer
-    buttons["Добавить чек"] = "piski"
-    buttons["Статистика"] = "siski"
-    buttons["Выбрать счёт"] = callbacks.show_wallets
-    buttons["Настройки"] = callbacks.settings
+    buttons["📥 Доход"] = callbacks.WalletOperations.write_income
+    buttons["📤 Расход"] = callbacks.WalletOperations.write_outcome
+    buttons["🔄 Перевод"] = callbacks.WalletOperations.write_transfer
+    buttons["🧾 Чек"] = "piski"
+    buttons["📈 Статистика"] = "siski"
+    buttons["💳 Счета"] = callbacks.show_wallets
+    buttons["⚙️ Настройки"] = callbacks.settings
 
 
     if user.is_subscribed:
         sizes = (2, 2, 1, 2)
     else:
         sizes = (2, 2, 1)
-        buttons["Статистика"] = callbacks.WalletOperations.show_operations_history
-        del buttons["Добавить чек"]
-        del buttons["Выбрать счёт"]
+        buttons["📈 Статистика"] = callbacks.WalletOperations.show_operations_history
+        del buttons["🧾 Чек"]
+        del buttons["💳 Счета"]
 
 
     if current_wallet.is_hidden is True:
         text = f"""
-Здравствуйте, {fio}!
+Здравствуйте, {fio}! 👋
 
-{current_wallet.title}
+{current_wallet.title} 💼
 
-Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб
+Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб 💰
 
-За текущий месяц:
-Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб
-Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб
-            """
+За текущий месяц 📅:
+├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈 💵
+└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉 🛍️
+"""
     else:
         text = f"""
-Здравствуйте, {fio}!
+Здравствуйте, {fio}! 👋
 
-{current_wallet.title}
+{current_wallet.title} 💼
 
-Баланс: {current_wallet.amount} руб
+Баланс: {current_wallet.amount} руб 💰
 
-За текущий месяц:
-Доход: {incomes_amount} руб
-Расход: {outcomes_amount} руб
-            """
+За текущий месяц 📅:
+├ Доход: {incomes_amount} руб 📈 💵
+└ Расход: {outcomes_amount} руб 📉 🛍️
+"""
 
 
     await callback.message.edit_text(text = text, reply_markup=get_callback_btns(
@@ -126,46 +126,47 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
         elif operation.operation_type == Operations.OUTCOME.value:
             outcomes_amount += operation.amount
 
-    buttons["Доход"] = callbacks.WalletOperations.write_income
-    buttons["Расход"] = callbacks.WalletOperations.write_outcome
-    buttons["Перевод"] = callbacks.WalletOperations.write_transfer
-    buttons["Добавить чек"] = "piski"
-    buttons["Статистика"] = "siski"
-    buttons["Выбрать счёт"] = callbacks.show_wallets
-    buttons["Настройки"] = callbacks.settings
+    buttons["📥 Доход"] = callbacks.WalletOperations.write_income
+    buttons["📤 Расход"] = callbacks.WalletOperations.write_outcome
+    buttons["🔄 Перевод"] = callbacks.WalletOperations.write_transfer
+    buttons["🧾 Чек"] = "piski"
+    buttons["📈 Статистика"] = "siski"
+    buttons["💳 Счета"] = callbacks.show_wallets
+    buttons["⚙️ Настройки"] = callbacks.settings
 
     if user.is_subscribed:
         sizes = (2, 2, 1, 2)
     else:
         sizes = (2, 2, 1)
-        buttons["Статистика"] = callbacks.WalletOperations.show_operations_history
-        del buttons["Добавить чек"]
-        del buttons["Выбрать счёт"]
+        buttons["📈 Статистика"] = callbacks.WalletOperations.show_operations_history
+        del buttons["🧾 Чек"]
+        del buttons["💳 Счета"]
 
     if current_wallet.is_hidden is True:
         text = f"""
-Здравствуйте, {fio}!
+Здравствуйте, {fio}! 👋
 
-{current_wallet.title}
+{current_wallet.title} 💼
 
-Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб
+Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб 💰
 
-За текущий месяц:
-Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб
-Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб
-            """
+За текущий месяц 📅:
+├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈 💵
+└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉 🛍️
+"""
     else:
         text = f"""
-Здравствуйте, {fio}!
+Здравствуйте, {fio}! 👋
 
-{current_wallet.title}
+{current_wallet.title} 💼
 
-Баланс: {current_wallet.amount} руб
+Баланс: {current_wallet.amount} руб 💰
 
-За текущий месяц:
-Доход: {incomes_amount} руб
-Расход: {outcomes_amount} руб
-            """
+За текущий месяц 📅:
+├ Доход: {incomes_amount} руб 📈 💵
+└ Расход: {outcomes_amount} руб 📉 🛍️
+"""
+
 
     await bot.send_message(chat_id=user_id, text=text, reply_markup=get_callback_btns(
         btns=buttons,

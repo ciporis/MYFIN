@@ -62,21 +62,21 @@ async def show_settings(callback: CallbackQuery, state: FSMContext, session: Asy
 
     if current_wallet.is_hidden is True:
         buttons = {
-            "FAQ": callbacks.FAQ,
-            "Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
-            "Категории расходов": callbacks.outcome_categories,
-            "Отобразить счёт": callbacks.change_wallet_state,
-            "Премиум": callbacks.premium,
-            "Назад": callbacks.ProfileCommands.show_profile
+            "❓ FAQ": callbacks.FAQ,
+            "🛠️ Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
+            "📂 Категории расходов": callbacks.outcome_categories,
+            "👁️ Отобразить счёт": callbacks.change_wallet_state,
+            "⭐ Премиум": callbacks.premium,
+            "⬅️ Назад": callbacks.ProfileCommands.show_profile
         }
     else:
         buttons = {
-            "FAQ" : callbacks.FAQ,
-            "Тех поддержка" : "https://t.me/+8OUgQH2HdJkzNTQ6",
-            "Категории расходов" : callbacks.outcome_categories,
-            "Скрыть счёт" : callbacks.change_wallet_state,
-            "Премиум" : callbacks.premium,
-            "Назад" : callbacks.ProfileCommands.show_profile
+            "❓ FAQ": callbacks.FAQ,
+            "🛠️ Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
+            "📂 Категории расходов": callbacks.outcome_categories,
+            "🙈 Скрыть счёт": callbacks.change_wallet_state,
+            "⭐ Премиум": callbacks.premium,
+            "⬅️ Назад": callbacks.ProfileCommands.show_profile
         }
 
     sizes = (2, 2, 1, 1, )
@@ -331,21 +331,21 @@ async def hide_wallet(callback: CallbackQuery, state: FSMContext, session: Async
 
     if current_wallet.is_hidden is True:
         buttons = {
-            "FAQ": callbacks.FAQ,
-            "Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
-            "Категории расходов": callbacks.outcome_categories,
-            "Отобразить счёт": callbacks.change_wallet_state,
-            "Премиум": callbacks.premium,
-            "Назад": callbacks.ProfileCommands.show_profile
+            "❓ FAQ": callbacks.FAQ,
+            "🛠️ Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
+            "📂 Категории расходов": callbacks.outcome_categories,
+            "👁️ Отобразить счёт": callbacks.change_wallet_state,
+            "⭐ Премиум": callbacks.premium,
+            "⬅️ Назад": callbacks.ProfileCommands.show_profile
         }
     else:
         buttons = {
-            "FAQ": callbacks.FAQ,
-            "Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
-            "Категории расходов": callbacks.outcome_categories,
-            "Скрыть счёт": callbacks.change_wallet_state,
-            "Премиум": callbacks.premium,
-            "Назад": callbacks.ProfileCommands.show_profile
+            "❓ FAQ": callbacks.FAQ,
+            "🛠️ Тех поддержка": "https://t.me/+8OUgQH2HdJkzNTQ6",
+            "📂 Категории расходов": callbacks.outcome_categories,
+            "🙈 Скрыть счёт": callbacks.change_wallet_state,
+            "⭐ Премиум": callbacks.premium,
+            "⬅️ Назад": callbacks.ProfileCommands.show_profile
         }
 
     sizes = (2, 2, 1, 1,)
@@ -358,12 +358,14 @@ async def hide_wallet(callback: CallbackQuery, state: FSMContext, session: Async
 # Premium
 @router.callback_query(F.data == callbacks.premium)
 async def show_premium(callback: CallbackQuery, state: FSMContext):
-    text=("С нашей подпиской вам станет доступны:\n\n"
-          "1) Обработка голосовых сообщений\n"
-          "2) Сканер чеков\n"
-          "3) Удобный вывод статистики\n"
-          "4) Возможность иметь больше одного счёта\n"
-          "5) Возможность добавлять свои категории расходов")
+    text = ("🎉 С нашей *Премиум* подпиской вам станут доступны:\n\n"
+            "✨ *Расширенные возможности:*\n"
+            "🎤 1) Обработка голосовых сообщений\n"
+            "🧾 2) Сканер чеков\n"
+            "📊 3) Удобный вывод статистики\n"
+            "💳 4) Возможность иметь больше одного счёта\n"
+            "📂 5) Возможность добавлять свои категории расходов\n\n"
+            "🚀 *Повысьте свой опыт управления финансами!*")
 
     await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
         btns={
