@@ -24,7 +24,8 @@ from aiogram.types import Update
 webhook_path = f"/{token}"
 
 async def set_webhook():
-    webhook_url = f"https://bot.erahotels.ru{webhook_path}"
+    # webhook_url = f"https://bot.erahotels.ru{webhook_path}"
+    webhook_url = f"https://scantily-innocent-cheetah.cloudpub.ru:443{webhook_path}"
     dp.update.middleware(DataBaseSession(session_pool=session_maker))
     await bot.set_webhook(
         url=webhook_url,
@@ -85,5 +86,6 @@ if __name__ == "__main__":
     web.run_app(
         app,
         host="0.0.0.0",
-        port=4000
+        # port=4000
+        port=8080
     )

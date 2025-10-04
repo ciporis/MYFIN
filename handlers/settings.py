@@ -91,6 +91,8 @@ async def show_settings(callback: CallbackQuery, state: FSMContext, session: Asy
 # FAQ
 @router.callback_query(F.data == callbacks.FAQ)
 async def show_faq(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
     buttons = {}
 
     for question in questions:
@@ -105,9 +107,12 @@ async def show_faq(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("show_answer_"))
 async def show_answer(callback: CallbackQuery):
+    await callback.answer()
+
+    question = f"{questions[int(callback.data.split('_')[-1])]}\n\n"
     answer = answers[int(callback.data.split('_')[-1])]
 
-    await callback.message.edit_text(text=answer, reply_markup=get_callback_btns(
+    await callback.message.edit_text(text=question + answer, reply_markup=get_callback_btns(
         btns={
             "Назад" : callbacks.FAQ,
         },

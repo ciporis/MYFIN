@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import overload
 
+from services.constants import callbacks
 from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
 from database.orm_query import (orm_add_operation, orm_get_wallet,
@@ -18,7 +19,11 @@ router = Router()
 @router.callback_query(F.data.contains(WalletOperations.write_income))
 async def write_income(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.message.edit_text("Введите сумму")
+    await callback.message.edit_text("Введите сумму", reply_markup=get_callback_btns(
+        btns={
+            "Назад" : callbacks.ProfileCommands.show_profile,
+        }
+    ))
     await state.set_state(st_User_Commands.st_IncomeCommand.amount_state)
 
 @router.message(st_User_Commands.st_IncomeCommand.amount_state)

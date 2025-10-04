@@ -39,6 +39,14 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
     current_wallet: Wallet = user.current_wallet
 
     if not user.is_subscribed:
+        await message.answer(text="Извините, не получится обработать ваше голосовое сообщение без <b>подписки</b>",
+                             reply_markup=get_callback_btns(
+                                 btns={
+                                     "⭐ Премиум" : callbacks.premium,
+                                     "Профиль" : callbacks.ProfileCommands.show_profile
+                                 }
+        ))
+
         return
 
     wallets = [wallet.title for wallet in user.wallets]
@@ -53,7 +61,7 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
     receivers = await orm_get_receivers(session, message.from_user.id)
     receiver_names = [rec.name for rec in receivers]
     print(receiver_names)
-    prompt_template = """Проанализируй текст финансовой операции и верни данные СТРОГО в формате JSON. 
+    prompt_template = """Проанализируй текст финансовой операции и верни данные СТРОГО в формате JSON без лишнего текста. 
 
 Требуемые поля:
 - operation_type (обязательный): "Доход", "Расход" или "Перевод"
@@ -92,20 +100,26 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
     undefined_fields_text = ("Извините, не смог обнаружить некоторые данные, отправьте голосовое сообщение снова, "
                              "не забудьте про название счёта, с которым проводите операцию")
 
-    for key in operation_as_json.keys():
-        if operation_as_json["wallet_name"] == "undefined":
-            operation_as_json["wallet_name"] = current_wallet.title
-        elif operation_as_json[key] == "undefined":
-            await temp_mes.edit_text(text=undefined_fields_text)
-            await show_profile(message.from_user.id, session, state)
-            return
+    if operation_as_json is not None:
+        for key in operation_as_json.keys():
+            if operation_as_json[key] == "undefined":
+                if key == "wallet_name":
+                    operation_as_json[key] = current_wallet.title
+                else:
+                    await temp_mes.edit_text(text=undefined_fields_text)
+                    await show_profile(message.from_user.id, session, state)
+                    return
 
-    wallet: Wallet = await orm_get_wallet_by_title(session, message.from_user.id, operation_as_json["wallet_name"])
+        wallet: Wallet = await orm_get_wallet_by_title(session, message.from_user.id, operation_as_json["wallet_name"])
+    else:
+        await temp_mes.edit_text(text=undefined_fields_text)
+        await show_profile(message.from_user.id, session, state)
+        return
 
     amount = float(operation_as_json["amount"])
 
-    if amount <= 0 or wallet.amount - amount < 0:
-        await temp_mes.edit_text(text="Некорректный ввод или не хватает средств!", reply_markup=get_callback_btns(
+    if amount < 0:
+        await temp_mes.edit_text(text="Вы пытаетесь добавить сумму меньше нуля!", reply_markup=get_callback_btns(
             btns={
                 "Ок" : callbacks.ProfileCommands.show_profile,
             }
@@ -137,6 +151,14 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
             f"Категории: {categories_text}")
 
         category = await generate_text(promt)
+        new_amount = wallet.amount - amount
+
+        if new_amount < 0:
+            await message.answer("Недостаточно средств!", reply_markup=get_callback_btns(
+            btns={
+                "Ок" : callbacks.ProfileCommands.show_profile,
+            })
+        )
 
     elif operation_as_json["operation_type"] == Operations.TRANSFER_TO.value:
         receivers = await orm_get_receivers(session, message.from_user.id)
@@ -144,6 +166,18 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
 
         if operation_as_json["receiver"] not in receivers_names:
             await orm_add_receiver(session, message.from_user.id, operation_as_json["receiver"])
+
+        new_amount = wallet.amount - amount
+
+        if new_amount < 0:
+            await message.answer("Недостаточно средств!", reply_markup=get_callback_btns(
+            btns={
+                "Ок" : callbacks.ProfileCommands.show_profile,
+            })
+        )
+
+    else:
+        new_amount = wallet.amount + amount
 
     await orm_add_operation(
         session=session,
@@ -155,8 +189,6 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
         receiver=operation_as_json["receiver"],
         category=category
     )
-
-    new_amount = wallet.amount - amount
 
     await orm_edit_wallet_amount(session, wallet.id, new_amount)
 

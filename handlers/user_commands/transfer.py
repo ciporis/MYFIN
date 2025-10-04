@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from keyboards.inline import get_callback_btns
 from keyboards.reply import get_phone_number_keyboard
+from services.constants import callbacks
 from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
 from database.orm_query import (orm_get_user_by_id,
@@ -45,15 +46,21 @@ async def write_transfer_handler(callback: CallbackQuery, state: FSMContext, ses
 
             buttons[receiver.name] = f"set_receiver_{receiver.id}"
 
+        buttons["Назад"] = callbacks.ProfileCommands.show_profile
+
         await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
             btns=buttons
         ))
     else:
-        await callback.message.edit_text(text=text)
+        await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
+            btns={
+                "Назад" : callbacks.ProfileCommands.show_profile,
+            }
+        ))
 
     await state.set_state(st_User_Commands.st_TransferCommand.name_state)
 
-@router.callback_query(st_User_Commands.st_TransferCommand.name_state)
+@router.callback_query(st_User_Commands.st_TransferCommand.name_state, F.data.not_contains(callbacks.ProfileCommands.show_profile))
 async def save_receiver_name(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     receiver_id = int(callback.data.split("_")[-1])
     receiver: Receiver = await orm_get_receiver(session, receiver_id)

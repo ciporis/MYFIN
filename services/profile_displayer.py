@@ -82,11 +82,10 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
 
 Баланс: {current_wallet.amount} руб 💰
 
-За текущий месяц 📅:
+За текущий месяц:
 ├ Доход: {incomes_amount} руб 📈
 └ Расход: {outcomes_amount} руб 📉
 """
-
 
     await callback.message.edit_text(text = text, reply_markup=get_callback_btns(
         btns=buttons,
