@@ -70,9 +70,9 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
 
 Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб 💰
 
-За текущий месяц 📅:
-├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈 💵
-└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉 🛍️
+За текущий месяц:
+├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈
+└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉
 """
     else:
         text = f"""
@@ -83,8 +83,8 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
 Баланс: {current_wallet.amount} руб 💰
 
 За текущий месяц 📅:
-├ Доход: {incomes_amount} руб 📈 💵
-└ Расход: {outcomes_amount} руб 📉 🛍️
+├ Доход: {incomes_amount} руб 📈
+└ Расход: {outcomes_amount} руб 📉
 """
 
 
@@ -150,9 +150,9 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
 
 Баланс: <tg-spoiler>{current_wallet.amount}</tg-spoiler> руб 💰
 
-За текущий месяц 📅:
-├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈 💵
-└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉 🛍️
+За текущий месяц:
+├ Доход: <tg-spoiler>{incomes_amount}</tg-spoiler> руб 📈
+└ Расход: <tg-spoiler>{outcomes_amount}</tg-spoiler> руб 📉
 """
     else:
         text = f"""
@@ -162,9 +162,9 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
 
 Баланс: {current_wallet.amount} руб 💰
 
-За текущий месяц 📅:
-├ Доход: {incomes_amount} руб 📈 💵
-└ Расход: {outcomes_amount} руб 📉 🛍️
+За текущий месяц:
+├ Доход: {incomes_amount} руб 📈
+└ Расход: {outcomes_amount} руб 📉
 """
 
 

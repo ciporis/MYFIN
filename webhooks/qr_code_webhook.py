@@ -19,13 +19,17 @@ async def qr_code_webhook(request):
         query_params = request.query
 
         user_id = int(query_params.get("user_id"))
-        s = int(float(query_params.get("s")) * 100)
-        parsed_key = datetime.strptime(query_params.get("t"), "%Y%m%dT%H%M")
-        t = datetime.strftime(parsed_key, "%Y%m%dT%H%M")
-        fn = query_params.get("fn")
-        n = query_params.get("n")
-        i = query_params.get("i")
-        fp = query_params.get("fp")
+        text = str(query_params.get("receipt"))
+
+
+
+        # s = int(float(query_params.get("s")) * 100)
+        # parsed_key = datetime.strptime(query_params.get("t"), "%Y%m%dT%H%M")
+        # t = datetime.strftime(parsed_key, "%Y%m%dT%H%M")
+        # fn = query_params.get("fn")
+        # n = query_params.get("n")
+        # i = query_params.get("i")
+        # fp = query_params.get("fp")
         # result = fns_api.get_ticket(
         #     session_token=session_token,
         #     user_id=user_id,
@@ -41,57 +45,57 @@ async def qr_code_webhook(request):
         # code = result['code']  # код ошибки от апи ФНС.
         # message = result['message']  # сообщение от ФНС в случае ошибки или JSON-строка с информацией о чеке.
 
-        default_categories = [
-            "Продукты питания",
-            "Транспорт Жилье",
-            "Кафе и рестораны",
-            "Здоровье",
-            "Одежда и обувь",
-            "Развлечения",
-            "Связь",
-            "Личные расходы",
-            "Накопления и инвестиции",
-            "Прочее"
-        ]
-        async with session_maker() as session:
-            user_categories = await orm_get_all_categories(session, user_id)
-            print(user_categories)
-
-        user_categories_titles = [category.title for category in user_categories]
-
-        categories = default_categories + user_categories_titles
-
-        promt = f"""
-Роль: Ты — опытный финансовый аналитик, который специализируется на категоризации и анализе потребительских расходов. 
-Твоя задача — точно и без лишних слов относить товары к заданным категориям.
-
-Входные данные:
-#JSON WITH RECEIPT DATA
-
-Список существующих категорий расходов:
-{categories}
-
-Задача: Преобразовать входные данные в итоговый JSON, сгруппировав все товары по категориям и просуммировав их стоимость.
-
-Выходные данные (Требуемый формат):
-jsonс такими полями:
-"category1": "total_amount1",
-"category2": "total_amount2",
-...
-Правила и инструкции по выполнению:
-
-Анализ товаров: Тщательно проанализируй название каждого товара из входного JSON. На основе его названия определи, к 
-какой категории из предоставленного списка он относится.
-
-Группировка и суммирование: Собери все товары, относящиеся к одной категории, и просуммируй их стоимость.
-
-Формат вывода:
-Выводи ТОЛЬКО валидный JSON-объект, без каких-либо пояснений, комментариев или Markdown-разметки (никаких ```json в начале).
-Ключами в объекте должны быть строки с названиями категорий.
-Значениями должны быть строки, содержащие итоговую сумму для этой категории.
-Категории, для которых в чеке не нашлось товаров, включать в ответ НЕ НУЖНО.
-        """
-
+#         default_categories = [
+#             "Продукты питания",
+#             "Транспорт Жилье",
+#             "Кафе и рестораны",
+#             "Здоровье",
+#             "Одежда и обувь",
+#             "Развлечения",
+#             "Связь",
+#             "Личные расходы",
+#             "Накопления и инвестиции",
+#             "Прочее"
+#         ]
+#         async with session_maker() as session:
+#             user_categories = await orm_get_all_categories(session, user_id)
+#             print(user_categories)
+#
+#         user_categories_titles = [category.title for category in user_categories]
+#
+#         categories = default_categories + user_categories_titles
+#
+#         promt = f"""
+# Роль: Ты — опытный финансовый аналитик, который специализируется на категоризации и анализе потребительских расходов.
+# Твоя задача — точно и без лишних слов относить товары к заданным категориям.
+#
+# Входные данные:
+# #JSON WITH RECEIPT DATA
+#
+# Список существующих категорий расходов:
+# {categories}
+#
+# Задача: Преобразовать входные данные в итоговый JSON, сгруппировав все товары по категориям и просуммировав их стоимость.
+#
+# Выходные данные (Требуемый формат):
+# jsonс такими полями:
+# "category1": "total_amount1",
+# "category2": "total_amount2",
+# ...
+# Правила и инструкции по выполнению:
+#
+# Анализ товаров: Тщательно проанализируй название каждого товара из входного JSON. На основе его названия определи, к
+# какой категории из предоставленного списка он относится.
+#
+# Группировка и суммирование: Собери все товары, относящиеся к одной категории, и просуммируй их стоимость.
+#
+# Формат вывода:
+# Выводи ТОЛЬКО валидный JSON-объект, без каких-либо пояснений, комментариев или Markdown-разметки (никаких ```json в начале).
+# Ключами в объекте должны быть строки с названиями категорий.
+# Значениями должны быть строки, содержащие итоговую сумму для этой категории.
+# Категории, для которых в чеке не нашлось товаров, включать в ответ НЕ НУЖНО.
+#         """
+        print(user_id, text)
         # determined_categories_with_totals: dict = await get_json_as_map(promt)
 
         #ADD OPERATION IN BASE

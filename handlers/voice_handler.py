@@ -9,7 +9,7 @@ from create_bot import bot
 from database.models import Wallet, Category, User, Operation
 from database.orm_query import orm_get_wallet_by_title, orm_add_operation, orm_get_all_categories, \
     orm_get_user_with_wallets, orm_get_latest_wallet_operation, orm_delete_operation, orm_get_receivers, \
-    orm_edit_wallet_amount
+    orm_edit_wallet_amount, orm_add_receiver
 from services.constants import callbacks
 from services.whisper_api import convert_voice_to_text
 from services.openai import get_json_as_map
@@ -137,6 +137,13 @@ async def check_voice_message(message: types.Message, session: AsyncSession, sta
             f"Категории: {categories_text}")
 
         category = await generate_text(promt)
+
+    elif operation_as_json["operation_type"] == Operations.TRANSFER_TO.value:
+        receivers = await orm_get_receivers(session, message.from_user.id)
+        receivers_names = [receiver.name for receiver in receivers]
+
+        if operation_as_json["receiver"] not in receivers_names:
+            await orm_add_receiver(session, message.from_user.id, operation_as_json["receiver"])
 
     await orm_add_operation(
         session=session,

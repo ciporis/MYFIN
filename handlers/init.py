@@ -2,7 +2,7 @@ from aiogram import Router
 from handlers import registration
 from handlers.user_commands import (start, income, outcome, transfer, operations_history, show_wallet, send_excel_report,
                                     show_wallets)
-from handlers import wallet_maker, settings, ai_recommendations, voice_handler, user_group, user_private
+from handlers import wallet_maker, settings, ai_recommendations, voice_handler, user_group, user_private, premium
 from handlers.admin import admin_private
 
 from services import profile_displayer
@@ -27,5 +27,6 @@ def setup_handlers(dp: Router):
     user_router.include_router(user_group.router)
     user_router.include_router(admin_private.router)
     user_router.include_router(user_private.router)
+    user_router.include_router(premium.router)
 
     dp.include_router(user_router)

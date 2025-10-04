@@ -55,7 +55,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
 
         if amount < 0 or wallet.amount - amount < 0:
             await message.answer("Неккоректный ввод", reply_markup=get_callback_btns(
-                btns={"Назад" : callbacks.WalletOperations.write_income},
+                btns={"Назад" : callbacks.ProfileCommands.show_profile},
             ))
             await state.clear()
         else:

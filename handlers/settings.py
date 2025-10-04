@@ -43,12 +43,14 @@ answers = ["К сожалению, в текущей версии бота "
            "вам.",
            "Нажмите кнопку «Добавить чек» в главном меню — откроется мини-приложение для"
            " сканирования QR-кода. Данные с чека автоматически добавятся в базу данных.",
-           "С нашей подпиской вам станет доступны:\n\n"
-           "1) Обработка голосовых сообщений\n"
-           "2) Сканер чеков\n"
-           "3) Удобный вывод статистики\n"
-           "4) Возможность иметь больше одного счёта\n"
-           "5) Возможность добавлять свои категории расходов"
+           "🎉 С нашей <b>Premium</b> подпиской вам станут доступны:\n\n"
+            "✨ <b>Расширенные возможности:</b>\n\n"
+            "🎤 1. Обработка голосовых сообщений\n\n"
+            "🧾 2. Сканер чеков\n\n"
+            "📊 3. Удобный вывод статистики\n\n"
+            "💳 4. Возможность иметь больше одного счёта\n\n"
+            "📂 5. Возможность добавлять свои категории расходов\n\n"
+            "<blockquote>🚀Повысьте свой опыт управления финансами!</blockquote>"
            ]
 
 @router.callback_query(F.data == "settings")
@@ -96,7 +98,8 @@ async def show_faq(callback: CallbackQuery, state: FSMContext):
 
     buttons["Назад"] = callbacks.settings
 
-    await callback.message.edit_text(text="FAQ", reply_markup=get_callback_btns(
+    await callback.message.edit_text(text="Здесь мы собрали все вопросы и ответы, которые у вас могут возникнуть 😊\n\n"
+                                          "<blockquote>Если вы не нашли здесь ответа обратитесь в техническую поддержку</blockquote>", reply_markup=get_callback_btns(
         btns=buttons,
     ))
 
@@ -142,11 +145,29 @@ async def show_categories(callback: CallbackQuery, session: AsyncSession, state:
             category: Category
             buttons[category.title] = f"edit_category_{category.id}\n"
 
-        buttons["Добавить"] = f"add_category"
+        buttons["Добавить ➕"] = f"add_category"
 
     buttons["Назад"] = callbacks.settings
 
-    await callback.message.edit_text(text=all_categories, reply_markup=get_callback_btns(
+    text = ("""<b>🏷️ Система категорий по умолчанию</b>
+
+🍎 <b>Продукты питания</b>
+🚗 <b>Транспорт</b>
+🏠 <b>Жилье</b>
+🍕 <b>Кафе и рестораны</b>
+💊 <b>Здоровье</b>
+👗 <b>Одежда и обувь</b>
+🎭 <b>Развлечения</b>
+📞 <b>Связь</b>
+👤 <b>Личные расходы</b>
+📈 <b>Накопления и инвестиции</b>
+📦 <b>Прочее</b>
+
+<i>Эти категории установлены по умолчанию для удобного учета расходов</i>
+
+<blockquote>Также вы можете дополнительно создать персональные категории, которые будут учитываться в статистике</blockquote>""")
+
+    await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
         btns=buttons,
     ))
 
@@ -187,7 +208,7 @@ async def save_category_title(message: Message, session: AsyncSession, state: FS
             category: Category
             buttons[category.title] = f"edit_category_{category.id}\n"
 
-        buttons["Добавить"] = f"add_category"
+        buttons["Добавить ➕"] = f"add_category"
 
     buttons["Назад"] = callbacks.settings
 
@@ -358,14 +379,14 @@ async def hide_wallet(callback: CallbackQuery, state: FSMContext, session: Async
 # Premium
 @router.callback_query(F.data == callbacks.premium)
 async def show_premium(callback: CallbackQuery, state: FSMContext):
-    text = ("🎉 С нашей *Премиум* подпиской вам станут доступны:\n\n"
-            "✨ *Расширенные возможности:*\n"
-            "🎤 1) Обработка голосовых сообщений\n"
-            "🧾 2) Сканер чеков\n"
-            "📊 3) Удобный вывод статистики\n"
-            "💳 4) Возможность иметь больше одного счёта\n"
-            "📂 5) Возможность добавлять свои категории расходов\n\n"
-            "🚀 *Повысьте свой опыт управления финансами!*")
+    text = ("🎉 С нашей <b>Premium</b> подпиской вам станут доступны:\n\n"
+            "✨ <b>Расширенные возможности:</b>\n\n"
+            "🎤 1. Обработка голосовых сообщений\n\n"
+            "🧾 2. Сканер чеков\n\n"
+            "📊 3. Удобный вывод статистики\n\n"
+            "💳 4. Возможность иметь больше одного счёта\n\n"
+            "📂 5. Возможность добавлять свои категории расходов\n\n"
+            "<blockquote>🚀Повысьте свой опыт управления финансами!</blockquote>")
 
     await callback.message.edit_text(text=text, reply_markup=get_callback_btns(
         btns={
@@ -373,61 +394,3 @@ async def show_premium(callback: CallbackQuery, state: FSMContext):
             "Назад" : callbacks.settings,
         }
     ))
-
-@router.callback_query(F.data == "buy_subscription")
-async def send_money(call: CallbackQuery):
-    load_dotenv(find_dotenv())
-
-    payment_token = os.getenv("UKASSA_TOKEN")
-
-    description = (
-        f"Оплатите ваш заказ на сумму {400} рубелй"
-    )
-    await call.bot.send_invoice(
-        chat_id=call.from_user.id,
-        title=f'Оплата подписки в приложении на [{400}₽]',
-        description=description,
-        payload=f'donate_{400}',
-        currency='RUB',
-        prices=[LabeledPrice(label="Заказ", amount=400*100)],
-        provider_token=payment_token
-    )
-
-    await call.answer()
-
-@router.pre_checkout_query()
-async def user_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
-    await pre_checkout_query.bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
-
-@router.message(F.successful_payment)
-async def user_successful_payment(message: Message, session: AsyncSession, apscheduler: AsyncIOScheduler):
-    end_date: datetime.date = datetime.date.today() + datetime.timedelta(days=30)
-
-    apscheduler.add_job(
-        func=send_notification,
-        trigger="date",
-        run_date=end_date - datetime.timedelta(days=1),
-        kwargs={ "chat_id" : message.chat.id},
-    )
-
-    apscheduler.add_job(
-        func=delete_sub_end_date,
-        trigger="date",
-        run_date=end_date,
-        kwargs={"user_id": message.from_user.id, "chat_id": message.chat.id, "session" : session},
-    )
-
-    await orm_edit_user_end_date(session, message.from_user.id, sub_end_date=end_date)
-    await orm_edit_user_is_subscribed(session, message.from_user.id, True)
-    await message.answer(f"Ваш заказ на сумму {400}₽ оформлен")
-
-async def send_notification(chat_id: int):
-    await bot.send_message(
-        chat_id=chat_id,
-        text=f"!!!До окончания подписки осталось {1} дней!!!"
-    )
-
-async def delete_sub_end_date(user_id: int, chat_id: int, session: AsyncSession):
-    await orm_edit_user_end_date(session, user_id, None)
-    await orm_edit_user_is_subscribed(session, user_id, False)
-    await bot.send_message(chat_id=chat_id, text="!!!Срок подписки истёк!!!")

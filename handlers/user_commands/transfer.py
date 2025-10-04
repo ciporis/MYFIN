@@ -68,7 +68,11 @@ async def get_user_name_by_contact(message: Message, state: FSMContext, session:
 
     await state.update_data(name=name)
 
-    await orm_add_receiver(session, message.from_user.id, name)
+    receivers = await orm_get_receivers(session, message.from_user.id)
+    receivers_names = [receiver.name for receiver in receivers]
+
+    if name not in receivers_names:
+        await orm_add_receiver(session, message.from_user.id, name)
 
     await message.answer("Введите сумму")
     await state.set_state(st_User_Commands.st_TransferCommand.amount_state)
@@ -77,7 +81,11 @@ async def get_user_name_by_contact(message: Message, state: FSMContext, session:
 async def set_user_name(message: Message, state: FSMContext, session: AsyncSession):
     await state.update_data(name=message.text)
 
-    await orm_add_receiver(session, message.from_user.id, message.text)
+    receivers = await orm_get_receivers(session, message.from_user.id)
+    receivers_names = [receiver.name for receiver in receivers]
+
+    if message.text not in receivers_names:
+        await orm_add_receiver(session, message.from_user.id, message.text)
 
     await message.answer("Введите сумму")
     await state.set_state(st_User_Commands.st_TransferCommand.amount_state)

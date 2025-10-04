@@ -35,10 +35,10 @@ async def show_wallets(callback: CallbackQuery, session: AsyncSession):
         else:
             buttons[wallet.title] = f"make_wallet_default_{wallet.id}"
 
-    buttons["Добавить"] = WalletOperations.add_wallet
+    buttons["Добавить ➕"] = WalletOperations.add_wallet
     buttons["Назад"] = ProfileCommands.show_profile
 
-    await callback.message.edit_text(text="Счета:", reply_markup=get_callback_btns(
+    await callback.message.edit_text(text=f"{user.fio}, вот все ваши счета:", reply_markup=get_callback_btns(
         btns=buttons
     ))
 
@@ -74,6 +74,6 @@ async def make_wallet_default(callback: CallbackQuery, session: AsyncSession, st
     buttons["Добавить ➕"] = WalletOperations.add_wallet
     buttons["Назад"] = ProfileCommands.show_profile
 
-    await callback.message.edit_text(text="Счета:", reply_markup=get_callback_btns(
+    await callback.message.edit_text(text=f"{user.fio}, вот все ваши счета:", reply_markup=get_callback_btns(
         btns=buttons
     ))
