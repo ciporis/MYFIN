@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from optparse import OptionParser
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
@@ -45,27 +46,15 @@ async def show_spens_review(callback: CallbackQuery, session: AsyncSession):
     current_wallet: Wallet = user.current_wallet
 
     operations = await orm_get_wallet_operations_for_current_month(session, current_wallet.id)
+    spends = [operation for operation in operations if operation.operation_type == Operations.OUTCOME.value or operation.operation_type == Operations.TRANSFER_TO.value]
 
-    if operations:
-        await callback.message.edit_text('Загрузка...')
-
-        await callback.answer()
+    if spends:
+        await callback.message.edit_text(text='Загрузка...')
 
         user_categories = await orm_get_all_categories(session, callback.from_user.id)
         user_categories_titles = [category.title for category in user_categories]
         categories = default_categories + user_categories_titles
         categories.append("Переводы")
-
-        spends = []
-        incomes = []
-
-        for operation in operations:
-            operation: Operation
-
-            if operation.operation_type == Operations.OUTCOME.value or operation.operation_type == Operations.TRANSFER_TO.value:
-                spends.append(operation)
-            elif operation.operation_type == Operations.INCOME.value:
-                incomes.append(operation)
 
         start_balance = 0
 
@@ -120,12 +109,15 @@ async def show_spens_review(callback: CallbackQuery, session: AsyncSession):
                 "Назад" : callbacks.ProfileCommands.show_profile
             }
         ))
+
+        await callback.answer()
     else:
         await callback.message.edit_text(text="Пусто...", reply_markup=get_callback_btns(
             btns={
                 "Назад" : callbacks.ProfileCommands.show_profile
             }
         ))
+        await callback.answer()
 
 # @router.callback_query(F.data.contains(WalletOperations.show_operations_history))
 # async def show_periods(callback: CallbackQuery, state: FSMContext, session: AsyncSession):

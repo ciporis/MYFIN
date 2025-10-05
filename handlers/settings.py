@@ -123,25 +123,7 @@ async def show_answer(callback: CallbackQuery):
 async def show_categories(callback: CallbackQuery, session: AsyncSession, state: FSMContext):
     user: User = await orm_get_user_by_id(session, callback.from_user.id)
 
-    all_categories = "Категории:\n\n"
-
-    default_categories = [
-        "Продукты питания",
-        "Транспорт",
-        "Жилье",
-        "Кафе и рестораны",
-        "Здоровье",
-        "Одежда и обувь",
-        "Развлечения",
-        "Связь",
-        "Личные расходы",
-        "Накопления и инвестиции",
-        "Прочее"
-    ]
     user_categories = await orm_get_all_categories(session, callback.from_user.id)
-
-    for category in default_categories:
-        all_categories += f"{category}\n"
 
     buttons = {}
 
@@ -186,25 +168,7 @@ async def save_category_title(message: Message, session: AsyncSession, state: FS
     await orm_add_category(session, message.from_user.id, message.text)
     user: User = await orm_get_user_by_id(session, message.from_user.id)
 
-    all_categories = "Категории:\n\n"
-
-    default_categories = [
-        "Продукты питания",
-        "Транспорт",
-        "Жилье",
-        "Кафе и рестораны",
-        "Здоровье",
-        "Одежда и обувь",
-        "Развлечения",
-        "Связь",
-        "Личные расходы",
-        "Накопления и инвестиции",
-        "Прочее"
-    ]
     user_categories = await orm_get_all_categories(session, message.from_user.id)
-
-    for category in default_categories:
-        all_categories += f"{category}\n"
 
     buttons = {}
 
@@ -217,7 +181,25 @@ async def save_category_title(message: Message, session: AsyncSession, state: FS
 
     buttons["Назад"] = callbacks.settings
 
-    await message.answer(text=all_categories, reply_markup=get_callback_btns(
+    text = ("""<b>🏷️ Система категорий по умолчанию</b>
+
+🍎 <b>Продукты питания</b>
+🚗 <b>Транспорт</b>
+🏠 <b>Жилье</b>
+🍕 <b>Кафе и рестораны</b>
+💊 <b>Здоровье</b>
+👗 <b>Одежда и обувь</b>
+🎭 <b>Развлечения</b>
+📞 <b>Связь</b>
+👤 <b>Личные расходы</b>
+📈 <b>Накопления и инвестиции</b>
+📦 <b>Прочее</b>
+
+<i>Эти категории установлены по умолчанию для удобного учета расходов</i>
+
+<blockquote>Также вы можете дополнительно создать персональные категории, которые будут учитываться в статистике</blockquote>""")
+
+    await message.answer(text=text, reply_markup=get_callback_btns(
         btns=buttons,
     ))
 

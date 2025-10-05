@@ -15,8 +15,6 @@ setup_handlers(dp)
 commands = [BotCommand(command="start", description="Старт"),
             BotCommand(command="promocode", description="Промокод")]
 
-import pprint
-
 from create_bot import bot, app, dp, token, web
 from middlewares.db import DataBaseSession
 from aiogram.types import Update

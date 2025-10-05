@@ -2,7 +2,7 @@ import datetime
 
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,8 +47,8 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
     buttons["📥 Доход"] = callbacks.WalletOperations.write_income
     buttons["📤 Расход"] = callbacks.WalletOperations.write_outcome
     buttons["🔄 Перевод"] = callbacks.WalletOperations.write_transfer
-    buttons["🧾 Чек"] = "piski"
-    buttons["📈 Статистика"] = "siski"
+    buttons["🧾 Чек"] = "webapp:https://acrelis.ru"
+    buttons["📈 Статистика"] = "webapp:https://acrelis.ru"
     buttons["💳 Счета"] = callbacks.show_wallets
     buttons["⚙️ Настройки"] = callbacks.settings
 
@@ -62,7 +62,7 @@ async def handle_show_profile_callback(callback: CallbackQuery, session: AsyncSe
         del buttons["💳 Счета"]
 
 
-    if current_wallet.is_hidden is True:
+    if current_wallet.is_hidden is True and user.is_subscribed:
         text = f"""
 Здравствуйте, {fio}! 👋
 
@@ -109,8 +109,8 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
         current_wallet = user.current_wallet
 
     print(await orm_get_wallet_operations_from_to_as_json(session, current_wallet.id,
-                                                          datetime.date.today() - datetime.timedelta(days=30),
-                                                          datetime.date.today()))
+                                                          datetime.datetime.today() - datetime.timedelta(days=30),
+                                                          datetime.datetime.today()))
 
     print(current_wallet.title)
     print(current_wallet.is_hidden)
@@ -128,8 +128,8 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
     buttons["📥 Доход"] = callbacks.WalletOperations.write_income
     buttons["📤 Расход"] = callbacks.WalletOperations.write_outcome
     buttons["🔄 Перевод"] = callbacks.WalletOperations.write_transfer
-    buttons["🧾 Чек"] = "piski"
-    buttons["📈 Статистика"] = "siski"
+    buttons["🧾 Чек"] = "webapp:https://acrelis.ru"
+    buttons["📈 Статистика"] = "webapp:https://acrelis.ru"
     buttons["💳 Счета"] = callbacks.show_wallets
     buttons["⚙️ Настройки"] = callbacks.settings
 
@@ -141,7 +141,7 @@ async def show_profile(user_id: int, session: AsyncSession, state: FSMContext):
         del buttons["🧾 Чек"]
         del buttons["💳 Счета"]
 
-    if current_wallet.is_hidden is True:
+    if current_wallet.is_hidden is True and user.is_subscribed:
         text = f"""
 Здравствуйте, {fio}! 👋
 

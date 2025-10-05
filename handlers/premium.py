@@ -59,7 +59,7 @@ async def show_premium(callback: CallbackQuery, state: FSMContext, session: Asyn
     #     )
 
 async def create_payment(amount: float, description: str, user_id: int):
-    return_url = "https://t.me/FinAccounting_test_bot"
+    return_url = "https://t.me/AcrelisMyFinBot"
 
     payment = Payment.create({
         "amount": {
