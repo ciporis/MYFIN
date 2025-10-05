@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from keyboards.inline import get_callback_btns
 from keyboards.reply import get_phone_number_keyboard
 from services.constants import callbacks
+from services.validation import is_float
 from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
 from database.orm_query import (orm_get_user_by_id,
@@ -109,7 +110,7 @@ async def save_transfer_amount(message: Message, state: FSMContext, session: Asy
         ))
         await state.clear()
     else:
-        if message.text.isdigit():
+        if is_float(message.text):
             amount: float = float(message.text)
 
             if amount < 0 or (balance - amount) < 0:

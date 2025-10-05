@@ -4,6 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from services.constants.callbacks import WalletOperations
+from services.validation import is_float
 from states.st_wallet_creation import st_WalletCreation
 from database.orm_query import orm_add_wallet, orm_add_operation
 from services.profile_displayer import show_profile
@@ -33,7 +34,7 @@ async def repeat_amount_input(message: Message, state: FSMContext):
 
 @router.message(F.text, st_WalletCreation.amount_state)
 async def save_wallet_amount(message: Message, state: FSMContext, session: AsyncSession):
-    if message.text.isdecimal():
+    if is_float(message.text):
         amount = float(message.text)
         await state.update_data(wallet_amount=amount)
         await create_wallet(message, state, session)

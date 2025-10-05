@@ -5,6 +5,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from services.validation import is_float
 from states.st_user_commands import st_User_Commands
 from services.constants.callbacks import WalletOperations, ProfileCommands
 from database.orm_query import (orm_add_operation, orm_get_wallet,
@@ -54,7 +55,7 @@ async def save_amount(message: Message, state: FSMContext, session: AsyncSession
     wallet: Wallet = user.current_wallet
     balance: float = wallet.amount
 
-    if message.text.isdigit():
+    if is_float(message.text):
         amount: float = float(message.text)
 
         if amount < 0 or wallet.amount - amount < 0:
